@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+
+/* ===== Page Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+/* Title */
+.title-1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Card Box */
+.card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+}
+
+/* Table */
+.table {
+    font-size: 16px;
+}
+
+.table td,
+.table th {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background: #f3f4f6;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* AdmissionSession title emphasis */
+.table td:nth-child(2) {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/* Hover effect */
+.table tbody tr:hover {
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+</style>
+
+<!-- Breadcrumb -->
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active">{% trans 'Admission Session List' %}</li>
+    </ol>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+
+    <p class="title-1">
+        <i class="fas fa-book-open me-2"></i>{% trans 'Admission Session List' %}
+    </p>
+
+    <div class="action-buttons">
+        {% if request.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'add_admission_session' %}">
+            <i class="fas fa-plus me-1"></i> Add New Admission Session
+        </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% include 'snippets/messages.html' %}
+{% include 'snippets/filter_form.html' %}
+
+<!-- TABLE -->
+<div class="card-box table-responsive mt-3">
+
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Admission Session</th>
+                <th>Summary</th>
+                {% if request.user.is_superuser %}
+                <th>Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for admission_session in filter.qs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                    <a href="{{ admission_session.get_absolute_url }}">
+                        {{ admission_session.title }}
+                    </a>
+                </td>
+
+                <td>{{ admission_session.summary }}</td>
+
+                {% if request.user.is_superuser %}
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                            <i class="fa fa-ellipsis-vertical"></i>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'edit_admission_session' pk=admission_session.pk %}">
+                                    <i class="fas fa-edit me-2"></i>Update
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'admission_session_delete' pk=admission_session.pk %}">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center text-danger py-3">
+                    No Session Found
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+{% if not filter.qs and request.user.is_superuser %}
+<div class="text-center mt-3">
+    <a href="{% url 'add_admission_session' %}"  class="btn btn-primary">
+       Add a New Admission Session Now
+    </a>
+</div>
+{% endif %}
+{% endblock content %}

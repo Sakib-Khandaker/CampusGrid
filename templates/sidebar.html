@@ -1,0 +1,454 @@
+{% load static %}
+{% load i18n %}
+
+<div id="side-nav" class="modern-sidebar">
+
+	<div class="main-menu">
+
+		<!-- TOP BRAND SECTION -->
+		<div class="top-side text-center py-4 sidebar-header"
+			style="background-image: url({% static 'img/just.jpg' %});">
+
+			<div class="desktop-hide">
+				<div class="toggle-btn" onclick="toggleSidebar()">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+
+			<a href="/" class="brand-logo">
+				<img src="/static/img/brand.png" width="250px" alt="JUST CSE AMS">
+			</a>
+
+			<p class="mt-3">
+				<span class="role-badge">
+					{{ request.user.get_user_role }}
+				</span>
+			</p>
+		</div>
+
+		<!-- URLS -->
+		{% url 'home' as hom %}
+		{% url 'dashboard' as dash %}
+		{% url 'profile' as prof %}
+		{% url 'teacher_list' as lec %}
+		{% url 'student_list' as stu %}
+		{% url 'course_allocation_view' as cav %}
+		{% url 'admission_sessions' as pro %}
+		{% url 'session_list' as sess %}
+		{% url 'semester_list' as sem %}
+		{% url 'add_score' as ascore %}
+		{% url 'grade_results' as vr %}
+		{% url 'ass_results' as ar %}
+		{% url 'course_registration' as cr %}
+		{% url 'edit_profile' as ep %}
+		{% url 'change_password' as cp %}
+		{% url 'quiz_progress' as qpr %}
+		{% url 'quiz_marking' as qce %}
+		{% url 'user_course_list' as ucl %}
+		{% url 'admin_panel' as admin_p %}
+
+		<!-- NAV MENU -->
+		
+		<ul>
+			{% if request.user.is_superuser %}
+			<li class="{% if request.path == dash %}active{% endif %}">
+				<a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i>{% trans 'Dashboard' %}</a>
+			</li>
+			{% endif %}
+			<li class="{% if request.path == notices %}active{% endif %}">
+	            <a href="{% url 'notices' %}">
+		            <i class="fas fa-bullhorn"></i> <span>{% trans 'Notices' %}</span>
+	            </a>
+            </li>
+			<li class="{% if request.path == hom %}active{% endif %}">
+				<a href="{% url 'home' %}"><i class="fas fa-home"></i>{% trans 'Home' %}</a>
+			</li>
+			<li class="{% if request.path == prof %}active{% endif %}">
+				<a href="{% url 'profile' %}"><i class="fas fa-user"></i>{% trans 'Profile' %}</a>
+			</li>
+
+			{% if request.user.is_superuser %}
+			<li class="{% if request.path == admin_p %}active{% endif %}">
+				<a href="{% url 'admin_panel' %}"><i class="fas fa-user-tie"></i>{% trans 'Admin Panel' %}</a>
+			</li>
+			<li class="{% if request.path == lec %}active{% endif %}">
+				<a href="{% url 'teacher_list' %}"><i class="fas fa-chalkboard-teacher"></i>{% trans 'teachers' %}</a>
+			</li>
+			<li class="{% if request.path == stu %}active{% endif %}">
+				<a href="{% url 'student_list' %}"><i class="fas fa-user-graduate"></i>{% trans 'Students' %}</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_teacher or request.user.is_student %}
+			<li class="{% if request.path == ucl %}active{% endif %}">
+				<a href="{% url 'user_course_list' %}"><i class="fas fa-book"></i>{% trans 'My Courses' %}</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_authenticated %}
+			<li class="{% if request.path == pro %}active{% endif %}">
+    			<a href="{% url 'admission_sessions' %}">
+        			<i class="fas fa-book-open"></i>
+        			{% trans 'Curriculum & Courses' %}
+    			</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_superuser or request.user.is_teacher %}
+			<li class="{% if request.path == qce %}active{% endif %}">
+				<a href="{% url 'quiz_marking' %}"><i class="fas fa-check-double"></i>{% trans 'Complete Exams' %}</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_superuser %}
+			<li class="{% if request.path == qpr %}active{% endif %}">
+				<a href="{% url 'quiz_progress' %}"><i class="fas fa-record-vinyl"></i>{% trans 'Quiz Progress Rec' %}</a>
+			</li>
+			<li class="{% if request.path == cav %}active{% endif %}">
+				<a href="{% url 'course_allocation_view' %}"><i class="fas fa-tasks"></i>{% trans 'Course Allocation' %}</a>
+			</li>
+			<li class="{% if request.path == sess %}active{% endif %}">
+				<a href="{% url 'session_list' %}"><i class="fas fa-calendar-week"></i>{% trans 'Manage Session' %}</a>
+			</li>
+			<li class="{% if request.path == sem %}active{% endif %}">
+				<a href="{% url 'semester_list' %}"><i class="fas fa-calendar-alt"></i>{% trans 'Manage Semester' %}</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_teacher %}
+			<li class="{% if request.path == ascore %}active{% endif %}">
+				<a href="{% url 'add_score' %}"><i class="fas fa-table"></i>{% trans 'Manage Score' %}</a>
+			</li>
+			{% endif %}
+
+			{% if request.user.is_student %}
+			<li class="{% if request.path == qpr %}active{% endif %}">
+				<a href="{% url 'quiz_progress' %}"><i class="fas fa-record-vinyl"></i>{% trans 'Quiz Progress Rec' %}</a>
+			</li>
+			<li class="{% if request.path == vr %}active{% endif %}">
+				<a href="{% url 'grade_results' %}"><i class="fa fa-spell-check"></i>{% trans 'Grade Results' %}</a>
+			</li>
+			<li class="{% if request.path == ar %}active{% endif %}">
+				<a href="{% url 'ass_results' %}"><i class="fa fa-list-ol"></i> {% trans 'Assesment Results' %}</a>
+			</li>
+			<li class="{% if request.path == cr %}active{% endif %}">
+				<a href="{% url 'course_registration' %}"><i class="fas fa-plus"></i>{% trans 'Add' %} &amp; {% trans 'Drop Course' %}</a>
+			</li>
+			{% endif %}
+			<br />
+			<p class="ms-3 text-secondary">&RightArrow; Others</p>
+			<li class="{% if request.path == ep %}active{% endif %}">
+				<a href="{% url 'edit_profile' %}"><i class="fas fa-cogs"></i>{% trans 'Account Setting' %}</a>
+			</li>
+			<li class="{% if request.path == cp %}active{% endif %}">
+				<a href="{% url 'change_password' %}"><i class="fas fa-key"></i>{% trans 'Change Password' %}</a>
+			</li>
+		</ul>
+
+	</div>
+
+	<!-- FOOTER -->
+	<footer class="sidebar-footer">
+
+		<form action="{% url 'set_language' %}" method="post" id="lang-form">
+			{% csrf_token %}
+			<input name="next" type="hidden" value="{{ redirect_to }}">
+
+			<select name="language" id="lang-select" class="language-select">
+				{% get_current_language as LANGUAGE_CODE %}
+				{% get_available_languages as LANGUAGES %}
+				{% get_language_info_list for LANGUAGES as languages %}
+				{% for language in languages %}
+				<option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+					{{ language.name_local }}
+				</option>
+				{% endfor %}
+			</select>
+		</form>
+
+		<p class="footer-text">
+			{% trans 'Privacy' %} • {% trans 'Terms' %}
+			<br>
+			JUST CSE AMS © <script>document.write(new Date().getFullYear());</script>
+		</p>
+
+		<a href="https://github.com/Justcseams/JUST CSE AMS" class="star-btn" target="_blank">
+			
+		</a>
+
+	</footer>
+
+</div>
+
+<!-- LANGUAGE JS -->
+<script>
+	document.getElementById("lang-select").addEventListener("change", function () {
+		document.getElementById("lang-form").submit();
+	});
+</script>
+
+<!-- MODERN SUPER COOL STYLE -->
+<style>
+
+/* ================================
+   MAIN SIDEBAR (GLASS + IMAGE)
+================================ */
+.modern-sidebar {
+	width: 300px;
+	height: 130vh;
+	position: fixed;
+	left: 0;
+	top: 0;
+	overflow-y: auto;
+
+	background: url("{% static 'img/just.jpg' %}") no-repeat center center fixed;
+	background-size: cover;
+
+	color: #ffffff;
+	box-shadow: 10px 0 50px rgba(0,0,0,0.6);
+}
+
+/* DARK OVERLAY */
+.modern-sidebar::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.70);
+	backdrop-filter: blur(10px);
+	z-index: 0;
+}
+
+/* CONTENT ABOVE OVERLAY */
+.main-menu,
+.sidebar-footer {
+	position: relative;
+	z-index: 2;
+}
+
+/* ================================
+   HEADER
+================================ */
+.sidebar-header {
+	background-size: cover;
+	border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.role-badge {
+	background: linear-gradient(135deg, #2563eb, #00c6ff);
+	padding: 6px 14px;
+	border-radius: 30px;
+	font-size: 18px;
+	font-weight: 700;
+	color: white;
+	box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+}
+/* ================================
+   MENU ITEMS (ULTRA MODERN STYLE)
+================================ */
+ul {
+	list-style: none;
+	padding: 12px;
+}
+
+/* MENU LINK */
+ul li a {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+
+	padding: 14px 16px;
+	margin-bottom: 6px;
+
+	border-radius: 14px;
+
+	color: #ffffff !important;
+	font-size: 18px;
+	font-weight: 600;
+
+	background: rgba(0, 198, 255, 0.15);
+	backdrop-filter: blur(6px);
+
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+/* ICON STYLE */
+ul li a i {
+	font-size: 18px;
+	transition: 0.4s ease;
+}
+
+/* 🔥 HOVER ANIMATION */
+ul li a:hover {
+	background: linear-gradient(135deg, rgba(37,99,235,0.6), rgba(0,198,255,0.6));
+	transform: translateX(8px) scale(1.03);
+
+	box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* ICON MOVE ON HOVER */
+ul li a:hover i {
+	transform: rotate(10deg) scale(1.2);
+	color: #350bcc;
+}
+
+/* 🔥 ACTIVE ITEM (GLOW EFFECT) */
+ul li.active a {
+	background: linear-gradient(135deg, #2563eb, #00c6ff);
+	font-weight: 700;
+
+	box-shadow:
+		0 0 10px rgba(37,99,235,0.8),
+		0 0 20px rgba(0,198,255,0.6),
+		0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* 🔥 SHINY ANIMATION EFFECT */
+ul li a::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+
+	background: linear-gradient(
+		120deg,
+		transparent,
+		background: rgba(0, 198, 255, 0.15);
+		transparent
+	);
+
+	transition : 0.6s;
+}
+
+/* SHINE ON HOVER */
+ul li a:hover::before {
+	left: 100%;
+}
+
+/* ================================
+   ROLE BADGE ANIMATION
+================================ */
+.role-badge {
+	background: linear-gradient(135deg, #2563eb, #00c6ff);
+	padding: 6px 14px;
+	border-radius: 30px;
+	font-size: 18px;
+	font-weight: 700;
+	color: white;
+
+	animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+	from {
+		box-shadow: 0 0 10px #2563eb;
+	}
+	to {
+		box-shadow: 0 0 20px #00c6ff;
+	}
+}
+
+/* ================================
+   SCROLLBAR STYLE
+================================ */
+.modern-sidebar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.modern-sidebar::-webkit-scrollbar-thumb {
+	background: linear-gradient(135deg, #2563eb, #00c6ff);
+	border-radius: 10px;
+}
+
+/* ================================
+   SIDEBAR ENTRY ANIMATION
+================================ */
+
+@keyframes slideIn {
+	from {
+		transform: translateX(-100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+/* ================================
+   LABELS
+================================ */
+.sidebar-label {
+	font-size: 12px;
+	color: rgba(255,255,255,0.75);
+	margin: 10px;
+	font-weight: 600;
+	letter-spacing: 1px;
+}
+
+/* ================================
+   DIVIDER
+================================ */
+.sidebar-divider {
+	border: none;
+	height: 1px;
+	background: rgba(255,255,255,0.15);
+	margin: 12px 0;
+}
+
+/* ================================
+   FOOTER
+================================ */
+.sidebar-footer {
+	padding: 15px;
+	text-align: center;
+	border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+.language-select {
+	width: 100%;
+	padding: 8px;
+	border-radius: 10px;
+	background: #1e293b;
+	color: white;
+	border: none;
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+
+.footer-text {
+	font-size: 14px;
+	color: rgba(255,255,255,0.7);
+}
+
+.star-btn {
+	display: inline-block;
+	margin-top: 10px;
+	padding: 8px 14px;
+	border-radius: 10px;
+	background: rgba(255,255,255,0.10);
+	color: white;
+	font-weight: 600;
+	transition: 0.3s ease;
+}
+
+.star-btn:hover {
+	background: linear-gradient(135deg, #2563eb, #00c6ff);
+	transform: translateY(-2px);
+	box-shadow: 0 10px 25px rgba(37,99,235,0.4);
+}
+
+/* ================================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+	.modern-sidebar {
+		transform: translateX(-100%);
+		z-index: 999;
+		transition: 0.3s ease;
+	}
+}
+
+</style>

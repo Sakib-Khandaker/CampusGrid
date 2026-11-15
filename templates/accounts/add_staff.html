@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">
+            <a href="{% url 'teacher_list' %}">{% trans 'teachers' %}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{% trans 'Add' %}</li>
+    </ol>
+</nav>
+
+<h4 class="fw-bold mb-3">
+    <i class="fas fa-chalkboard-teacher me-2"></i>
+    {% trans 'teacher Add Form' %}
+</h4>
+
+{% include 'snippets/messages.html' %}
+
+<!-- Non-field errors -->
+{% if form.non_field_errors %}
+<div class="alert alert-danger">
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+<form method="POST" novalidate>
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-md-6">
+
+            <div class="card p-3">
+
+                <p class="form-title">{% trans 'Personal Info' %}</p>
+
+                <!-- First Name -->
+                {{ form.first_name|as_crispy_field }}
+                {% if form.first_name.errors %}
+                    <div class="text-danger small">{{ form.first_name.errors }}</div>
+                {% endif %}
+
+                <!-- Last Name -->
+                {{ form.last_name|as_crispy_field }}
+                {% if form.last_name.errors %}
+                    <div class="text-danger small">{{ form.last_name.errors }}</div>
+                {% endif %}
+
+                <!-- Email -->
+                {{ form.email|as_crispy_field }}
+                {% if form.email.errors %}
+                    <div class="text-danger small">{{ form.email.errors }}</div>
+                {% endif %}
+
+                <!-- Address -->
+                {{ form.address|as_crispy_field }}
+                {% if form.address.errors %}
+                    <div class="text-danger small">{{ form.address.errors }}</div>
+                {% endif %}
+
+                <!-- Phone -->
+                {{ form.phone|as_crispy_field }}
+                {% if form.phone.errors %}
+                    <div class="text-danger small">{{ form.phone.errors }}</div>
+                {% endif %}
+
+                <!-- Gender -->
+                {{ form.gender|as_crispy_field }}
+                {% if form.gender.errors %}
+                    <div class="text-danger small">{{ form.gender.errors }}</div>
+                {% endif %}
+
+                <!-- ✅ NEW FIELD: DESIGNATION -->
+                {{ form.designation|as_crispy_field }}
+                {% if form.designation.errors %}
+                    <div class="text-danger small">{{ form.designation.errors }}</div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <input class="btn btn-primary" type="submit" value="{% trans 'Save' %}">
+</form>
+
+{% endblock content %}

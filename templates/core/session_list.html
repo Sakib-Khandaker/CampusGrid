@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+
+/* ===== Page Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+/* Title */
+.title-1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Card Box */
+.card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+}
+
+/* Table */
+.table {
+    font-size: 16px;
+}
+
+.table td,
+.table th {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background: #f3f4f6;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Hover effect */
+.table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+</style>
+
+<!-- Breadcrumb -->
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active">{% trans 'Session List' %}</li>
+    </ol>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+
+    <p class="title-1">
+        <i class="fas fa-calendar-week me-2"></i>{% trans 'Session List' %}
+    </p>
+
+    <div class="action-buttons">
+        {% if request.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'add_session' %}">
+            <i class="fas fa-plus me-1"></i> Add Session
+        </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% include 'snippets/messages.html' %}
+
+<!-- TABLE -->
+<div class="card-box table-responsive mt-3">
+
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Session</th>
+                <th>Is Current Session</th>
+                <th>Next Session Begins</th>
+                {% if request.user.is_superuser %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for session in sessions %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>{{ session.session }}</td>
+
+                <td>
+                    {% if session.is_current_session %}
+                        <i class="fas fa-check-circle text-success"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle text-danger"></i>
+                    {% endif %}
+                </td>
+
+                <td>{{ session.next_session_begins }}</td>
+
+                {% if request.user.is_superuser %}
+                <td>
+                    <div class="update-delete">
+                        <a href="{% url 'edit_session' pk=session.pk %}" class="update" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+
+                        <a href="{% url 'delete_session' pk=session.pk %}" class="delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-4">
+
+                    <div class="text-danger mb-2">
+                        No Sessions Found
+                    </div>
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+<div class="text-center mt-3" >
+    {% if request.user.is_superuser %}
+                    <a href="{% url 'add_session' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Add Session Now
+                    </a>
+                    {% endif %}
+</div>
+{% endblock content %}

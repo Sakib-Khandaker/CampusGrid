@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+/* ===== Page Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+/* Title */
+.title-1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Card */
+.card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+}
+
+/* Table */
+.table {
+    font-size: 16px;
+}
+
+.table td,
+.table th {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background: #f3f4f6;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.table tbody tr:hover {
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+/* Course tags */
+.course-tag {
+    display: inline-block;
+    background: #eef2ff;
+    color: #3730a3;
+    padding: 4px 10px;
+    border-radius: 8px;
+    margin: 2px;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.course-tag:hover {
+    background: #e0e7ff;
+}
+
+/* Action icons */
+.action-icons a {
+    margin-right: 10px;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.action-icons a:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<!-- Breadcrumb -->
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+            {% trans 'Allocation list' %}
+        </li>
+    </ol>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+    <p class="title-1">
+        <i class="fas fa-tasks me-2"></i>{% trans 'Course Allocations' %}
+    </p>
+</div>
+
+{% include 'snippets/messages.html' %}
+{% include 'snippets/filter_form.html' %}
+
+<!-- TABLE CARD -->
+<div class="card-box table-responsive mt-3">
+
+    <!-- TOP RIGHT BUTTON -->
+    {% if request.user.is_superuser %}
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-primary" href="{% url 'course_allocation' %}">
+            <i class="fas fa-plus me-1"></i>{% trans 'Allocate Course' %}
+        </a>
+    </div>
+    {% endif %}
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans 'teacher' %}</th>
+                <th>{% trans 'Courses' %}</th>
+                {% if request.user.is_superuser %}
+                <th>{% trans 'Action' %}</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for course in filter.qs %}
+            <tr>
+                <td>{{ forloop.counter }}.</td>
+
+                <td>
+                    <a href="{{ course.teacher.get_absolute_url }}">
+                        {{ course.teacher.get_full_name }}
+                    </a>
+                </td>
+
+                <td>
+                    {% for i in course.courses.all %}
+                        <a class="course-tag" href="{{ i.get_absolute_url }}">
+                            {{ i }}
+                        </a>
+                    {% endfor %}
+                </td>
+
+                {% if request.user.is_superuser %}
+                <td>
+                    <div class="action-icons">
+                        <a href="{% url 'edit_allocated_course' pk=course.pk %}" class="text-primary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+
+                        <a href="{% url 'course_deallocate' pk=course.pk %}" class="text-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="{% if request.user.is_superuser %}4{% else %}3{% endif %}"
+                    class="text-center text-danger py-4">
+
+                    {% trans 'No Course Allocated.' %}
+
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+<div>
+     {% if request.user.is_superuser %}
+                    <br><br>
+                    <a class="btn btn-primary btn-sm" href="{% url 'course_allocation' %}">
+                        <i class="fas fa-plus me-1"></i> {% trans 'Allocate now' %}
+                    </a>
+                    {% endif %}
+</div>
+{% endblock content %}

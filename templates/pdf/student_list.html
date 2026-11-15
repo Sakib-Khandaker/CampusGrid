@@ -1,0 +1,59 @@
+{% block content %}
+{% load i18n %}
+
+<p class="title-1">{% trans 'Students' %}</p>
+
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{% trans 'ID No.' %}</th>
+        <th>{% trans 'ID Dept.' %}</th>
+        <th>{% trans 'Registration Number' %}</th>
+        <th>{% trans 'Full Name' %}</th>
+        <th>{% trans 'Email' %}</th>
+        <th>{% trans 'Mob No.' %}</th>
+        <th>{% trans 'AdmissionSession' %}</th>
+        <th>{% trans 'Blood Group' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr>
+        <td>{{ forloop.counter }}.</td>
+
+        <!-- NEW COLUMN: ID Dept -->
+        <td>{{ student.id_dept }}</td>
+
+        <!-- NEW COLUMN: Registration Number -->
+        <td>{{ student.registration_number }}</td>
+
+        <td>{{ student.student.username }}</td>
+
+        <td>
+          <a href="{% url 'profile_single' student.id %}">
+            {{ student.student.get_full_name }}
+          </a>
+        </td>
+
+        <td>{{ student.student.email }}</td>
+        <td>{{ student.admission_session }}</td>
+
+        <!-- NEW COLUMN: Blood Group -->
+        <td>{{ student.blood_group }}</td>
+      </tr>
+
+      {% empty %}
+      <tr>
+        <td colspan="8">
+          <span class="text-danger">
+            {% trans 'No student(s).' %}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock content %}

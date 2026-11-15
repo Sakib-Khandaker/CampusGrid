@@ -1,0 +1,40 @@
+{% block content %}
+{% load i18n %}
+
+<p class="title-1">{% trans 'teachers' %}</p>
+
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>{% trans 'ID No.' %}</th>
+        <th>{% trans 'Full Name' %}</th>
+        <th>{% trans 'Email' %}</th>
+        <th>{% trans 'Mob No.' %}</th>
+        <th>{% trans 'Address/City' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for teacher in teachers %}
+      <tr>
+        <td> {{ forloop.counter }}.</td>
+        <td>{{ teacher.username }}</td>
+        <td><a href="{% url 'profile_single' teacher.id %}">{{ teacher.get_full_name }}</a></td>
+        <td>{{ teacher.email }}</td>
+        <td>{{ teacher.phone }}</td>
+        <td>{{ teacher.address }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td>
+          <span class="text-danger">
+            {% trans 'No teacher(s).' %}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock content %}

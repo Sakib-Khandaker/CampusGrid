@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+
+/* ===== Page Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+.title-1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+}
+
+.card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+}
+
+/* ===== TABLE ===== */
+.table {
+    font-size: 16px;
+}
+
+.table td,
+.table th {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background: #f3f4f6;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.table td:nth-child(5) {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.table tbody tr:hover {
+    background: #f9fafb;
+    transition: 0.2s;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+</style>
+
+<!-- Breadcrumb -->
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active">{% trans 'Students' %}</li>
+    </ol>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+
+    <p class="title-1">
+        <i class="fas fa-user-graduate me-2"></i>{% trans 'Students' %}
+    </p>
+
+    <div class="action-buttons">
+        {% if request.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'add_student' %}">
+            <i class="fas fa-plus me-1"></i> Add Student
+        </a>
+
+        <a class="btn btn-outline-light" target="_blank" href="{% url 'student_list_pdf' %}">
+            <i class="fas fa-download me-1"></i> PDF
+        </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% include 'snippets/messages.html' %}
+{% include 'snippets/filter_form.html' %}
+
+<!-- TABLE -->
+<div class="card-box table-responsive mt-3">
+
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID No.</th>
+                <th>ID Dept.</th>
+                <th>Registration Number</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>AdmissionSession</th>
+                <th>Blood Group</th>
+                {% if request.user.is_superuser %}
+                <th>Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for student in filter.qs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>{{ student.student.username }}</td>
+
+                <!-- NEW -->
+                <td>{{ student.id_dept }}</td>
+                <td>{{ student.registration_number }}</td>
+
+                <td>
+                    <a href="{% url 'profile_single' student.student.id %}">
+                        {{ student.student.get_full_name }}
+                    </a>
+                </td>
+
+                <td>{{ student.student.email }}</td>
+                <td>{{ student.admission_session }}</td>
+
+                <!-- NEW -->
+                <td>{{ student.blood_group }}</td>
+
+                {% if request.user.is_superuser %}
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                            <i class="fa fa-ellipsis-vertical"></i>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'student_edit' student.student.pk %}">
+                                    <i class="fas fa-edit me-2"></i>Update
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" target="_blank"
+                                   href="{% url 'profile_single' student.student.id %}?download_pdf=1">
+                                    <i class="fas fa-download me-2"></i>Download PDF
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'student_delete' student.pk %}">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center text-danger py-3">
+                    No Students Found
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+
+{% if not filter.qs and request.user.is_superuser %}
+<div class="text-center mt-3">
+    <a href="{% url 'add_student' %}" class="btn btn-primary">
+        Add Student Now
+    </a>
+</div>
+{% endif %}
+
+{% endblock content %}

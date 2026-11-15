@@ -1,0 +1,235 @@
+{% extends 'registration/registration_base.html' %}
+{% load i18n static %}
+{% block title %}{% trans 'Register | Learning management system' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+  body {
+    background: url("{% static 'img/just.jpg' %}") no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.60);
+    backdrop-filter: blur(6px);
+  }
+
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 950px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    padding: 40px;
+    color: #fff;
+  }
+
+  .form-title {
+    font-size: 30px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  h2.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+  }
+
+  .form-control, select, textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .form-control:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+  }
+
+  #message-wrapper {
+    font-size: 14px;
+    margin-top: -8px;
+    margin-bottom: 10px;
+  }
+
+  .text-danger {
+    color: #ffb3b3;
+  }
+
+  .text-success {
+    color: #b7ffcc;
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: #fff;
+    font-weight: 800;
+    font-size: 18px;
+    transition: 0.3s ease;
+    margin-top: 20px;
+  }
+
+  .btn-login:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0,114,255,0.4);
+  }
+
+  .bottom-link {
+    text-align: center;
+    margin-top: 18px;
+  }
+
+  .bottom-link a {
+    color: #fff;
+    text-decoration: underline;
+  }
+
+</style>
+
+<div class="login-overlay"></div>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="form-title">
+      <i class="fas fa-user-plus me-2"></i>
+      {% trans 'Create Your Account' %}
+    </div>
+
+    <form action="" method="POST" id="login-form">
+      {% csrf_token %}
+
+      <div class="row">
+
+        <!-- LEFT SIDE -->
+        <div class="col-lg-6">
+          <h2 class="section-title">{% trans 'Login Info' %}</h2>
+
+          <label>{{ form.username.label }}</label>
+          {{ form.username }}
+          <div id="message-wrapper"></div>
+
+          <label>{{ form.email.label }}</label>
+          {{ form.email }}
+
+          <label>{{ form.password1.label }}</label>
+          {{ form.password1 }}
+
+          <label>{{ form.password2.label }}</label>
+          {{ form.password2 }}
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-6">
+          <h2 class="section-title">{% trans 'Personal Info' %}</h2>
+
+          <label>{{ form.address.label }}</label>
+          {{ form.address }}
+
+          <label>{{ form.phone.label }}</label>
+          {{ form.phone }}
+
+          <label>{{ form.first_name.label }}</label>
+          {{ form.first_name }}
+
+          <label>{{ form.last_name.label }}</label>
+          {{ form.last_name }}
+
+          <label>{{ form.gender.label }}</label>
+          {{ form.gender }}
+
+          <label>{{ form.level.label }}</label>
+          {{ form.level }}
+
+          <label>{{ form.admission_session.label }}</label>
+          {{ form.admission_session }}
+        </div>
+
+      </div>
+
+      {% if form.errors %}
+        <p class="text-danger mt-2">
+          <i class="fas fa-exclamation-circle"></i>
+          {% trans 'Please fix the errors in the form.' %}
+        </p>
+      {% endif %}
+
+      <button type="submit" class="btn-login" id="login-btn">
+        <i class="fas fa-user-plus"></i>
+        {% trans 'SIGN UP' %}
+      </button>
+
+    </form>
+
+    <div class="bottom-link">
+      {% trans 'Already Registered?' %}
+      <a href="{% url 'login' %}">{% trans 'Login' %}</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script>
+  const form = document.getElementById('login-form');
+  const btn = document.getElementById('login-btn');
+
+  form.addEventListener('submit', () => {
+    btn.innerHTML = 'Creating Account...';
+    btn.classList.add('disabled');
+  });
+
+  $("#username_id").on("input", function () {
+    let username = $(this).val();
+
+    $.ajax({
+      url: "/accounts/ajax/validate-username/",
+      data: { username: username },
+      dataType: 'json',
+      success: function (data) {
+        if (data.is_taken) {
+          $('#message-wrapper').html(
+            `<p class="text-danger"><b>${username}</b> already taken</p>`
+          );
+        } else {
+          $('#message-wrapper').html(
+            `<p class="text-success"><b>${username}</b> is available</p>`
+          );
+        }
+      }
+    });
+  });
+</script>
+
+{% endblock %}

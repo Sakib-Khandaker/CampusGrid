@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %} {{ title }} | JUST CSE AMS{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== TITLE ===== */
+.title-1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* ===== SUMMARY ===== */
+.admission_session-summary {
+    background: #2563eb;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+/* ===== CARD ===== */
+.table-shadow {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+    overflow-x: auto;
+}
+
+/* ===== TABLE RESPONSIVE FIX ===== */
+.table-responsive {
+    overflow-x: auto !important;
+}
+
+.table {
+    min-width: 1100px;
+}
+
+/* ===== HEADER BIG ===== */
+.table thead th {
+    font-size: 18px;
+    font-weight: 800;
+    padding: 16px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ===== BODY BIG ===== */
+.table tbody td {
+    font-size: 16px;
+    padding: 14px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* ===== HOVER ===== */
+.table tbody tr:hover {
+    background: #f1f5ff;
+}
+
+/* ===== LINK ===== */
+.table a {
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #111;
+}
+
+.table a:hover {
+    color: #2563eb;
+}
+
+/* ===== BADGE ===== */
+.badge {
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* ===== ICONS ===== */
+.fa-check-circle { color: #16a34a; font-size: 18px; }
+.fa-times-circle { color: #ef4444; font-size: 18px; }
+
+/* ===== ACTION BUTTON ===== */
+.action-btn {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+</style>
+
+<!-- ===== BREADCRUMB ===== -->
+<nav style="--bs-breadcrumb-divider: '>';">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+
+        {% if request.user.is_student %}
+        <li class="breadcrumb-item">
+            <a href="{% url 'user_course_list' %}">{% trans 'My courses' %}</a>
+        </li>
+        {% else %}
+        <li class="breadcrumb-item">
+            <a href="{% url 'admission_sessions' %}">{% trans 'AdmissionSessions' %}</a>
+        </li>
+        {% endif %}
+
+        <li class="breadcrumb-item active">{{ admission_session.title }}</li>
+    </ol>
+</nav>
+
+<!-- ===== TITLE ===== -->
+<div class="title-1">{{ admission_session.title }}</div>
+
+{% if admission_session.summary %}
+<p class="admission_session-summary">{{ admission_session.summary }}</p>
+{% endif %}
+
+<!-- ===================================================== -->
+<!-- ✅ RESTORED ADD COURSE BUTTON (IMPORTANT FIX) -->
+<!-- ===================================================== -->
+
+{% if request.user.is_superuser %}
+<div class="d-flex justify-content-end mb-3">
+    <a class="btn btn-sm btn-primary" href="{% url 'course_add' pk=admission_session.pk %}">
+        <i class="fas fa-plus"></i> {% trans 'Add Course' %}
+    </a>
+</div>
+{% endif %}
+
+{% include 'snippets/messages.html' %}
+{% include 'snippets/filter_form.html' %}
+
+<!-- ===== TABLE ===== -->
+<div class="table-responsive">
+    <div class="table-shadow">
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{% trans 'Course Name' %}</th>
+                    <th>{% trans 'Code' %}</th>
+                    <th>{% trans 'Cr.Hr' %}</th>
+                    <th>{% trans 'Type' %}</th>
+                    <th>{% trans 'Level' %}</th>
+                    <th>{% trans 'Year' %}</th>
+                    <th>{% trans 'Semester' %}</th>
+                    <th>{% trans 'Current' %}</th>
+
+                    {% if request.user.is_superuser %}
+                    <th>{% trans 'Action' %}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        {% if request.user.is_student %}
+                            <span class="course-disabled">
+                                {{ course.title }}
+                            </span>
+                        {% else %}
+                            <a href="{{ course.get_absolute_url }}">
+                                {{ course.title }}
+                            </a>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ course.code }}</td>
+                    <td>{{ course.credit }}</td>
+
+                    <td>
+                        <span class="badge
+                            {% if course.course_type == 'theory' %}bg-primary
+                            {% elif course.course_type == 'lab' %}bg-success
+                            {% elif course.course_type == 'internship' %}bg-warning
+                            {% elif course.course_type == 'viva' %}bg-dark
+                            {% else %}bg-secondary
+                            {% endif %}
+                        ">
+                            {{ course.get_course_type_display }}
+                        </span>
+                    </td>
+
+                    <td>{{ course.level }}</td>
+                    <td>{{ course.year }}</td>
+                    <td>{{ course.semester }}</td>
+
+                    <td>
+                        {% if course.is_current_semester %}
+                            <i class="fas fa-check-circle"></i>
+                        {% else %}
+                            <i class="fas fa-times-circle"></i>
+                        {% endif %}
+                    </td>
+
+                    {% if request.user.is_superuser %}
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm action-btn" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="{% url 'edit_course' slug=course.slug %}">
+                                    Edit
+                                </a>
+                                <a class="dropdown-item text-danger" href="{% url 'delete_course' slug=course.slug %}">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        No courses found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+{% endblock %}

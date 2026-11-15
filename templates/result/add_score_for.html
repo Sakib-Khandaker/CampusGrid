@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }} | JUST CSE AMS{% endblock %}
+
+{% block content %}
+
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ course.get_absolute_url }}">{{ course }}</a></li>
+        <li class="breadcrumb-item active">Manage Score</li>
+    </ol>
+</nav>
+
+<div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+        {{ course }}
+    </button>
+    <div class="dropdown-menu">
+        {% for course in courses %}
+            <a class="dropdown-item" href="{% url 'add_score_for' course.id %}">
+                {{ course.title }}
+            </a>
+        {% empty %}
+            <p class="dropdown-item">No course</p>
+        {% endfor %}
+    </div>
+</div>
+
+<br>
+
+<h4 class="title-1">
+    Students Result Form | {{ course|truncatechars:15 }}
+</h4>
+
+<p>{{ course.summary }}</p>
+
+{% include 'snippets/messages.html' %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="btn-flex">
+        <button type="submit" class="btn btn-primary">Save</button>
+
+        <a target="_blank" href="{% url 'result_sheet_pdf_view' id=course.id %}">
+            <span class="btn btn-warning">
+                <i class="far fa-file-pdf"></i> Grade Report
+            </span>
+        </a>
+    </div>
+
+    <h4 class="mt-3">
+        {{ current_semester }} Semester
+        <span class="badge bg-danger">{{ current_session }}</span>
+    </h4>
+
+    <div class="table-responsive">
+        <table class="table table-light">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Assignment</th>
+                    <th>Class Test</th>
+                    <th>Quiz</th>
+                    <th>Attendance</th>
+
+                    <th>In Mark</th>
+                    <th>Ex Mark</th>
+                    <th>3rd Mark</th>
+
+                    <th>Final Exam</th>
+                    <th>Total</th>
+                    <th>Point</th>
+                    <th>Grade</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for student in students %}
+                <tr>
+
+                    <!-- IMPORTANT: hidden ID for correct mapping -->
+                    <input type="hidden" name="student_ids" value="{{ student.id }}">
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        <a href="{{ student.student.student.get_absolute_url }}">
+                            {{ student.student.student.username }}
+                        </a>
+                    </td>
+
+                    <td>
+                        <input type="number" name="assignment_{{ student.id }}" value="{{ student.assignment }}">
+                    </td>
+
+                    <td>
+                        <input type="number" name="mid_exam_{{ student.id }}" value="{{ student.mid_exam }}">
+                    </td>
+
+                    <td>
+                        <input type="number" name="quiz_{{ student.id }}" value="{{ student.quiz }}">
+                    </td>
+
+                    <td>
+                        <input type="number" name="attendance_{{ student.id }}" value="{{ student.attendance }}">
+                    </td>
+
+                    <td>
+                        <input type="number" step="0.01" name="in_mark_{{ student.id }}" value="{{ student.in_mark }}">
+                    </td>
+
+                    <td>
+                        <input type="number" step="0.01" name="ex_mark_{{ student.id }}" value="{{ student.ex_mark }}">
+                    </td>
+
+                    <td>
+                        <input type="number" step="0.01" name="third_mark_{{ student.id }}" value="{{ student.third_mark }}">
+                    </td>
+
+                    <td>
+                        <strong>{{ student.final_exam|default:"0.00" }}</strong>
+                    </td>
+
+                    <td>{{ student.total }}</td>
+                    <td>{{ student.point }}</td>
+
+                    <td class="{% if student.grade == 'F' %}text-danger{% else %}text-success{% endif %}">
+                        {{ student.grade }}
+                    </td>
+
+                    {% if student.comment == 'PASS' %}
+                        <td class="text-success">✔ PASS</td>
+                    {% elif student.comment == 'FAIL' %}
+                        <td class="text-danger">✘ FAIL</td>
+                    {% else %}
+                        <td></td>
+                    {% endif %}
+
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="15" class="text-center text-danger">
+                        No Students Found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</form>
+
+{% endblock %}

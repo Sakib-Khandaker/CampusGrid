@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ title }} | {% trans 'JUST CSE AMS' %}{% endblock title %}
+
+{% block content %}
+
+<style>
+
+/* ===== Page Header ===== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #1f2937;
+    padding: 12px 16px;
+    border-radius: 12px;
+}
+
+/* Title */
+.title-1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.action-buttons .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Card Box */
+.card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+}
+
+/* TABLE */
+.table {
+    font-size: 16px;
+}
+
+.table td,
+.table th {
+    padding: 14px 12px;
+    vertical-align: middle;
+}
+
+.table thead th {
+    background: #f3f4f6;
+    font-weight: 600;
+    font-size: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+</style>
+
+<!-- Breadcrumb -->
+<nav style="--bs-breadcrumb-divider: '>';">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active">{% trans 'teachers' %}</li>
+    </ol>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header">
+    <p class="title-1">
+        <i class="fas fa-chalkboard-teacher me-2"></i>{% trans 'teachers' %}
+    </p>
+
+    <div class="action-buttons">
+        {% if request.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'add_teacher' %}">
+            <i class="fas fa-plus me-1"></i> Add teacher
+        </a>
+
+        <a class="btn btn-outline-light" target="_blank" href="{% url 'teacher_list_pdf' %}">
+            <i class="fas fa-download me-1"></i> PDF
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'snippets/messages.html' %}
+{% include 'snippets/filter_form.html' %}
+
+<!-- TABLE -->
+<div class="card-box table-responsive mt-3">
+
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Designation</th>
+                <th>Last Login</th>
+                {% if request.user.is_superuser %}
+                <th>Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for teacher in filter.qs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ teacher.username }}</td>
+                <td>{{ teacher.get_full_name }}</td>
+                <td>{{ teacher.email }}</td>
+                <td>{{ teacher.phone }}</td>
+                <td>{{ teacher.address }}</td>
+
+                <!-- ✅ NEW DESIGNATION COLUMN -->
+                <td>
+                    {{ teacher.get_designation_display }}
+                </td>
+
+                <td>{{ teacher.last_login }}</td>
+
+                {% if request.user.is_superuser %}
+                <td>
+                    <a href="{% url 'staff_edit' teacher.pk %}">Edit</a> |
+                    <a href="{% url 'teacher_delete' teacher.pk %}" class="text-danger">Delete</a>
+                </td>
+                {% endif %}
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center text-danger py-3">
+                    No teachers Found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Empty state -->
+{% if not filter.qs and request.user.is_superuser %}
+<div class="text-center mt-3">
+    <a href="{% url 'add_teacher' %}" class="btn btn-primary">
+        Add teacher Now
+    </a>
+</div>
+{% endif %}
+
+{% endblock content %}
